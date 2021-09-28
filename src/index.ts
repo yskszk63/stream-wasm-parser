@@ -1,5 +1,5 @@
 export { parse } from "./parser";
-export * as values from "./struct/values";
-export * as types from "./struct/types";
-export * as instr from "./struct/instr";
-export * as modules from "./struct/modules";
+export * from "./struct/values";
+export * from "./struct/types";
+export * from "./struct/instr";
+export * from "./struct/modules";
