@@ -80,91 +80,94 @@ export async function* iterItem(
   const b = await src.read(true);
   if (b === null) {
     yield "EOF";
-    return;
-  }
-  const size = await v.readU32(src);
-  const sub = src.subsource(size);
+  } else {
+    const size = await v.readU32(src);
+    const sub = src.subsource(size);
 
-  switch (b) {
-    case 0:
-      yield tag("custom", await parseCustomsec(sub, size));
-      return;
+    switch (b) {
+      case 0:
+        yield tag("custom", await parseCustomsec(sub, size));
+        return;
 
-    case 1:
-      for await (const item of iterVec(sub, t.parseFunctype)) {
-        yield tag("type", ctx.indexed("typeidx", item));
-      }
-      return;
+      case 1:
+        for await (const item of iterVec(sub, t.parseFunctype)) {
+          yield tag("type", ctx.indexed("typeidx", item));
+        }
+        return;
 
-    case 2:
-      for await (const item of iterVec(sub, (s) => parseImport(ctx, s))) {
-        yield tag("import", item);
-      }
-      return;
+      case 2:
+        for await (const item of iterVec(sub, (s) => parseImport(ctx, s))) {
+          yield tag("import", item);
+        }
+        return;
 
-    case 3:
-      for await (const item of iterVec(sub, v.readU32)) {
-        yield tag("func", ctx.indexed("funcidx", item as unknown as m.typeidx));
-      }
-      return;
+      case 3:
+        for await (const item of iterVec(sub, v.readU32)) {
+          yield tag(
+            "func",
+            ctx.indexed("funcidx", item as unknown as m.typeidx),
+          );
+        }
+        return;
 
-    case 4:
-      for await (const item of iterVec(sub, parseTable)) {
-        yield tag("table", ctx.indexed("tableidx", item));
-      }
-      return;
+      case 4:
+        for await (const item of iterVec(sub, parseTable)) {
+          yield tag("table", ctx.indexed("tableidx", item));
+        }
+        return;
 
-    case 5:
-      for await (const item of iterVec(sub, parseMem)) {
-        yield tag("mem", ctx.indexed("memidx", item));
-      }
-      return;
+      case 5:
+        for await (const item of iterVec(sub, parseMem)) {
+          yield tag("mem", ctx.indexed("memidx", item));
+        }
+        return;
 
-    case 6:
-      for await (const item of iterVec(sub, parseGlobal)) {
-        yield tag("global", ctx.indexed("globalidx", item));
-      }
-      return;
+      case 6:
+        for await (const item of iterVec(sub, parseGlobal)) {
+          yield tag("global", ctx.indexed("globalidx", item));
+        }
+        return;
 
-    case 7:
-      for await (const item of iterVec(sub, parseExport)) {
-        yield tag("export", item);
-      }
-      return;
+      case 7:
+        for await (const item of iterVec(sub, parseExport)) {
+          yield tag("export", item);
+        }
+        return;
 
-    case 8:
-      yield tag("start", await parseStart(src));
-      return;
+      case 8:
+        yield tag("start", await parseStart(src));
+        return;
 
-    case 9:
-      for await (const item of iterVec(sub, parseElem)) {
-        yield tag("elem", ctx.indexed("elemidx", item));
-      }
-      return;
+      case 9:
+        for await (const item of iterVec(sub, parseElem)) {
+          yield tag("elem", ctx.indexed("elemidx", item));
+        }
+        return;
 
-    case 10:
-      for await (const item of iterVec(sub, parseCode)) {
-        yield tag("code", item);
-      }
-      return;
+      case 10:
+        for await (const item of iterVec(sub, parseCode)) {
+          yield tag("code", item);
+        }
+        return;
 
-    case 11:
-      for await (const item of iterVec(sub, parseData)) {
-        yield tag("data", ctx.indexed("dataidx", item));
-      }
-      return;
+      case 11:
+        for await (const item of iterVec(sub, parseData)) {
+          yield tag("data", ctx.indexed("dataidx", item));
+        }
+        return;
 
-    case 12:
-      yield tag("datacount", await parseDatacountsec(src));
-      return;
+      case 12:
+        yield tag("datacount", await parseDatacountsec(src));
+        return;
 
-    default:
-      throw new Error(`unknown tag. ${b}`);
+      default:
+        throw new Error(`unknown tag. ${b}`);
+    }
   }
 }
 
 /** 5.5.3 Custom Section */
-export async function parseCustomsec(
+async function parseCustomsec(
   src: Source,
   size: number,
 ): Promise<m.customsec> {
@@ -371,7 +374,7 @@ async function parseElem(src: Source): Promise<m.elem> {
       };
     }
     default:
-      throw new Error(`unknwon elem. ${b}`);
+      throw new Error(`unknown tag. ${b}`);
   }
 }
 
@@ -407,7 +410,7 @@ async function parseLocals(src: Source): Promise<vec<m.locals>> {
 }
 
 /** 5.5.14 Data Section */
-export async function parseData(src: Source): Promise<m.data> {
+async function parseData(src: Source): Promise<m.data> {
   const b = await src.read();
   switch (b) {
     case 0x00: {
@@ -438,11 +441,11 @@ export async function parseData(src: Source): Promise<m.data> {
       };
     }
     default:
-      throw new Error(`unknwon elem. ${b}`);
+      throw new Error(`unknown tag. ${b}`);
   }
 }
 
 /** Data Count Section */
-export async function parseDatacountsec(src: Source): Promise<m.datacountsec> {
+async function parseDatacountsec(src: Source): Promise<m.datacountsec> {
   return await v.readU32(src);
 }

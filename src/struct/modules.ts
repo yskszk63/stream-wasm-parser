@@ -44,7 +44,7 @@ export type Item =
   | Tagged<"datacount", v.u32>;
 
 /** 5.5.3 Custom Section */
-export type customsec = [name, Uint8Array];
+export type customsec = [name, Uint8Array]; // TODO Consider hold data or not.
 
 /** 5.5.4 Type Section */
 export type typesec = vec<t.functype>;
@@ -129,7 +129,7 @@ export type codesec = vec<code>;
 
 export type code = func;
 
-export type func = [vec<locals>, expr];
+export type func = [vec<locals>, expr]; // TODO Consider hold data or not.
 
 export type locals = t.valtype;
 

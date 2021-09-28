@@ -11,10 +11,10 @@ async function fuzz(buf) {
             && e.message !== 'limit reached.'
             && !e.message.startsWith('invalid data. ')
             && !e.message.startsWith('overflow. ')
-            && e.message !== 'unexpected value. undefined'
-            && !e.message.startsWith('unknwon elem.')
             && !e.message.startsWith('unknown elemkind.')
             && !e.message.startsWith('unknown value. ')
+            && !e.message.startsWith('unknown reftype. ')
+            && !e.message.startsWith('unknown valtype. ')
             && !e.message.startsWith('length > 2**31-1')
             && !e.message.startsWith('incorrect size. ')) {
             throw e;

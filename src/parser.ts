@@ -26,9 +26,7 @@ export async function* parse(
       }
     }
   } finally {
-    if ("close" in src) {
-      src.close();
-    }
+    src.close();
   }
 }
 

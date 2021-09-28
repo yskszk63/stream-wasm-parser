@@ -1,5 +1,5 @@
 export interface Closeable {
-  close(): Promise<void>;
+  close(): void;
 }
 
 export interface Source {
@@ -10,17 +10,17 @@ export interface Source {
   subsource(limit: number): Source;
 }
 
-export function newSource(items: ArrayLike<number>): Source;
+export function newSource(items: ArrayLike<number>): Source & Closeable;
 
 export function newSource(items: ReadableStream): Source & Closeable;
 
 export function newSource(
   items: ArrayLike<number> | ReadableStream,
-): Source | Source & Closeable;
+): Source & Closeable;
 
 export function newSource(
   items: ArrayLike<number> | ReadableStream,
-): Source | Source & Closeable {
+): Source & Closeable {
   if ("getReader" in items) {
     return new StreamSource(items);
   } else {
@@ -152,6 +152,10 @@ class ArraySource {
 
   subsource(limit: number): Source {
     return new SubSource(this, limit);
+  }
+
+  close(): void {
+    // nop
   }
 }
 

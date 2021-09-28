@@ -22,7 +22,7 @@ export async function parseReftype(src: Source): Promise<t.reftype> {
   if (r) {
     return r;
   }
-  throw new Error(`unexpected value. ${r}`);
+  throw new Error(`unknown reftype. ${v}`);
 }
 
 /** 5.3.3 Value Types */
@@ -36,7 +36,7 @@ export async function parseValtype(src: Source): Promise<t.valtype> {
   if (r) {
     return r;
   }
-  throw new Error(`unexpected value. ${r}`);
+  throw new Error(`unknown valtype. ${v}`);
 }
 
 /** 5.3.4 Result Types */

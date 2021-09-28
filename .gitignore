@@ -1,6 +1,7 @@
 node_modules/
 coverage/
-testdata/*.wasm
+testdata/*.wat.wasm
 index.js
 dist/
 .nyc_output/
+crash-*
