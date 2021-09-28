@@ -3,3 +3,4 @@ coverage/
 testdata/*.wasm
 index.js
 dist/
+.nyc_output/

@@ -209,7 +209,7 @@ async function parseImportdesc(
       return tag("global", ctx.indexed("globalidx", gt));
     }
     default:
-      throw new Error(`unexpected tag ${b}`);
+      throw new Error(`unknown tag. ${b}`);
   }
 }
 
@@ -269,7 +269,7 @@ async function parseExportdesc(src: Source): Promise<m.exportdesc> {
       return tag("global", gt);
     }
     default:
-      throw new Error(`unexpected tag ${i}`);
+      throw new Error(`unknown tag. ${i}`);
   }
 }
 
@@ -297,7 +297,7 @@ async function parseElem(src: Source): Promise<m.elem> {
     case 0x01: {
       const et = await src.read();
       if (et !== 0x00) {
-        throw new Error(`unexpected elemkind. ${et}`);
+        throw new Error(`unknown elemkind. ${et}`);
       }
       const y = await readVec(src, v.readU32) as unknown as vec<m.funcidx>;
       return {
@@ -311,7 +311,7 @@ async function parseElem(src: Source): Promise<m.elem> {
       const e = await i.parseExprConst(src);
       const et = await src.read();
       if (et !== 0x00) {
-        throw new Error(`unexpected elemkind. ${et}`);
+        throw new Error(`unknown elemkind. ${et}`);
       }
       const y = await readVec(src, v.readU32) as unknown as vec<m.funcidx>;
       return {
@@ -323,7 +323,7 @@ async function parseElem(src: Source): Promise<m.elem> {
     case 0x03: {
       const et = await src.read();
       if (et !== 0x00) {
-        throw new Error(`unexpected elemkind. ${et}`);
+        throw new Error(`unknown elemkind. ${et}`);
       }
       const y = await readVec(src, v.readU32) as unknown as vec<m.funcidx>;
       return {
@@ -371,7 +371,7 @@ async function parseElem(src: Source): Promise<m.elem> {
       };
     }
     default:
-      throw new Error(`unknwon elem ${b}`);
+      throw new Error(`unknwon elem. ${b}`);
   }
 }
 
@@ -386,6 +386,9 @@ async function parseFunc(src: Source, size: number): Promise<m.func> {
   const pos = src.pos;
   const t = await readVec(src, parseLocals);
   const esize = size - (src.pos - pos);
+  if (esize < 1) {
+    throw new Error(`incorrect size. ${size} ${src.pos - pos}`);
+  }
   const e = await src.readExact(esize - 1);
   if (await src.read() !== 0x0B) {
     throw new Error("expected end. but not.");
@@ -435,7 +438,7 @@ export async function parseData(src: Source): Promise<m.data> {
       };
     }
     default:
-      throw new Error(`unknwon elem ${i}`);
+      throw new Error(`unknwon elem. ${b}`);
   }
 }
 

@@ -9,6 +9,7 @@
   },
   "scripts": {
     "test": "jest",
+    "test:fuzz": "jsfuzz ./fuzz.cjs",
     "build": "npx rollup -c"
   },
   "author": "",
@@ -19,6 +20,8 @@
     "@swc/jest": "^0.2.4",
     "@types/jest": "^27.0.2",
     "jest": "^27.2.1",
+    "jsfuzz": "^1.0.15",
+    "nyc": "^15.1.0",
     "rollup": "^2.57.0",
     "rollup-plugin-dts": "^4.0.0",
     "rollup-plugin-swc": "^0.2.0"

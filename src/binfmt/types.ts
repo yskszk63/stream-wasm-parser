@@ -48,7 +48,7 @@ export async function parseResulttype(src: Source): Promise<t.resulttype> {
 export async function parseFunctype(src: Source): Promise<t.functype> {
   const tag = await src.read();
   if (tag !== 0x60) {
-    throw new Error(`unknown tag ${tag}.`);
+    throw new Error(`unknown tag. ${tag}`);
   }
   const parameters = await parseResulttype(src);
   const results = await parseResulttype(src);
@@ -83,7 +83,7 @@ export async function parseLimits(src: Source): Promise<t.limits> {
     }
 
     default:
-      throw new Error(`unknown tag ${tag}`);
+      throw new Error(`unknown tag. ${tag}`);
   }
 }
 
@@ -109,7 +109,7 @@ export async function parseGlobaltype(src: Source): Promise<t.globaltype> {
     case 0x01:
       return ["var", ty];
     default:
-      throw new Error(`unknown value ${m}`);
+      throw new Error(`unknown value. ${m}`);
   }
 }
 

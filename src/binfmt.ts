@@ -7,8 +7,11 @@ export async function readVec<R>(
   itemReader: (s: Source) => Promise<R>,
 ): Promise<vec<R>> {
   const length = await v.readU32(source);
+  if (length > (2 ** 31) - 1) {
+    throw new Error(`length > 2**31-1 ${length}`);
+  }
   const result = [];
-  for (const _ of Array.from({ length })) {
+  for (let i = 0; i < length; i++) {
     result.push(await itemReader(source));
   }
   return result;
@@ -19,7 +22,10 @@ export async function* iterVec<R>(
   itemReader: (s: Source) => Promise<R>,
 ): AsyncGenerator<R> {
   const length = await v.readU32(source);
-  for (const _ of Array.from({ length })) {
+  if (length > (2 ** 31) - 1) {
+    throw new Error(`length > 2**31-1 ${length}`);
+  }
+  for (let i = 0; i < length; i++) {
     const item = await itemReader(source);
     yield item;
   }
