@@ -13,7 +13,7 @@ npm build
 ## Test
 
 ```
-npm Test
+npm test
 ```
 
 ## API
@@ -22,7 +22,7 @@ TODO
 
 # Author
 
-yskszk63(https://github.com/yskszk63)
+[yskszk63](https://github.com/yskszk63)
 
 # License
 
