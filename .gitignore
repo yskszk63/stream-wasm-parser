@@ -1,0 +1,5 @@
+node_modules/
+coverage/
+testdata/*.wasm
+index.js
+dist/

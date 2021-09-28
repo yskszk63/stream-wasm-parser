@@ -1,0 +1,29 @@
+{
+  "name": "stream-wasm-parser",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "npx rollup -c"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.5",
+    "@swc/core": "^1.2.90",
+    "@swc/jest": "^0.2.4",
+    "@types/jest": "^27.0.2",
+    "jest": "^27.2.1",
+    "rollup": "^2.57.0",
+    "rollup-plugin-dts": "^4.0.0",
+    "rollup-plugin-swc": "^0.2.0"
+  },
+  "dependencies": {
+    "@thi.ng/leb128": "^1.0.69"
+  }
+}
