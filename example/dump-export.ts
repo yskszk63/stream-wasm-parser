@@ -1,5 +1,6 @@
 // @deno-types="../dist/index.d.ts"
-import {parse, types as t, modules as m} from '../dist/index.js';
+import {parse} from '../dist/index.js';
+import * as m from '../dist/index.js';
 
 const stdin = new ReadableStream({
     async pull(controller) {
@@ -20,7 +21,7 @@ console.log("export type f32 = number;");
 console.log("export type f64 = number;");
 console.log("export type Export = {");
 
-const types: Map<m.typeidx, t.functype> = new Map();
+const types: Map<m.typeidx, m.functype> = new Map();
 const funcs: Map<m.funcidx, m.typeidx> = new Map();
 for await (const sec of parse(stdin)) {
     switch (sec.tag) {
