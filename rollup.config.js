@@ -1,6 +1,10 @@
+import fs from 'fs'
 import swc from 'rollup-plugin-swc'
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import dts from 'rollup-plugin-dts'
+import {terser} from 'rollup-plugin-terser';
+
+const swcConf = JSON.parse(fs.readFileSync(new URL(".swcrc", import.meta.url), {encoding: 'utf8'}));
 
 export default [{
   input: './src/index.ts',
@@ -12,15 +16,8 @@ export default [{
     nodeResolve({
       extensions: ['.ts'],
     }),
-    swc({
-      // TODO read from .swcrc
-      jsc: {
-        parser: {
-          syntax: 'typescript',
-        },
-        target: 'es2018',
-      },
-    }),
+    swc(swcConf),
+    terser(),
   ],
 }, {
   input: './src/index.ts',
