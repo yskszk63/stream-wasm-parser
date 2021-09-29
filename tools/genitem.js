@@ -23,6 +23,7 @@ const stop = new Set([
     "dataidx",
     "localidx",
     "labelidx",
+    "u32",
 ]);
 const targs = [];
 const generics = [];
@@ -104,7 +105,7 @@ const result = (function process(target) {
     }
 
     case ts.SyntaxKind.ArrayType: {
-        return process(target.elementType) + "[]";
+        return "(" + process(target.elementType) + ")[]";
     }
 
     case ts.SyntaxKind.LiteralType: {

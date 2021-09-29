@@ -21,6 +21,7 @@ npm test
 ```typescript
 declare type Options = unknown;
 declare function parse(input: ArrayLike<number> | ReadableStream<Uint8Array>, _opt?: Options): AsyncGenerator<Item, void>;
+
 declare type Item =
   | { tag: "custom"; val: [string, Uint8Array] }
   | {
@@ -30,8 +31,9 @@ declare type Item =
       val: {
         tag: "func";
         val: {
-          parameters: "i32" | "i64" | "f32" | "f64" | "funcref" | "externref"[];
-          results: "i32" | "i64" | "f32" | "f64" | "funcref" | "externref"[];
+          parameters:
+            ("i32" | "i64" | "f32" | "f64" | "funcref" | "externref")[];
+          results: ("i32" | "i64" | "f32" | "f64" | "funcref" | "externref")[];
         };
       };
     };
@@ -45,23 +47,11 @@ declare type Item =
         tag: "table";
         val: {
           index: tableidx;
-          val: [
-            {
-              min: number & { [key in "u32"]: never };
-              max: number & { [key in "u32"]: never } | null;
-            },
-            "funcref" | "externref",
-          ];
+          val: [{ min: u32; max: u32 | null }, "funcref" | "externref"];
         };
       } | {
         tag: "mem";
-        val: {
-          index: memidx;
-          val: {
-            min: number & { [key in "u32"]: never };
-            max: number & { [key in "u32"]: never } | null;
-          };
-        };
+        val: { index: memidx; val: { min: u32; max: u32 | null } };
       } | {
         tag: "global";
         val: {
@@ -79,28 +69,12 @@ declare type Item =
     tag: "table";
     val: {
       index: tableidx;
-      val: {
-        type: [
-          {
-            min: number & { [key in "u32"]: never };
-            max: number & { [key in "u32"]: never } | null;
-          },
-          "funcref" | "externref",
-        ];
-      };
+      val: { type: [{ min: u32; max: u32 | null }, "funcref" | "externref"] };
     };
   }
   | {
     tag: "mem";
-    val: {
-      index: memidx;
-      val: {
-        type: {
-          min: number & { [key in "u32"]: never };
-          max: number & { [key in "u32"]: never } | null;
-        };
-      };
-    };
+    val: { index: memidx; val: { type: { min: u32; max: u32 | null } } };
   }
   | {
     tag: "global";
@@ -132,9 +106,9 @@ declare type Item =
       index: elemidx;
       val: {
         type: "funcref" | "externref";
-        init: { tag: "expr"; val: [Uint8Array, "end"][] } | {
+        init: { tag: "expr"; val: ([Uint8Array, "end"])[] } | {
           tag: "funcref";
-          val: funcidx[];
+          val: (funcidx)[];
         };
         mode: { tag: "passive"; val: undefined } | {
           tag: "active";
@@ -146,7 +120,7 @@ declare type Item =
   | {
     tag: "code";
     val: [
-      "i32" | "i64" | "f32" | "f64" | "funcref" | "externref"[],
+      ("i32" | "i64" | "f32" | "f64" | "funcref" | "externref")[],
       [Uint8Array, "end"],
     ];
   }
@@ -163,7 +137,7 @@ declare type Item =
       };
     };
   }
-  | { tag: "datacount"; val: number & { [key in "u32"]: never } };
+  | { tag: "datacount"; val: u32 };
 ```
 
 # Author
