@@ -2,15 +2,50 @@ import { Item } from "./struct/modules";
 import { Context, iterItem } from "./binfmt/modules";
 import { newSource, Source } from "./source";
 
-export const MAGIC = [0x00, 0x61, 0x73, 0x6d];
+/**
+ * wasm magic number ('\0asm').
+ *
+ * https://webassembly.github.io/spec/core/bikeshed/#binary-magic
+ */
+const MAGIC = [0x00, 0x61, 0x73, 0x6d];
 
-export const VERSION = [0x01, 0x00, 0x00, 0x00];
+/**
+ * wasm version field.
+ *
+ * https://webassembly.github.io/spec/core/bikeshed/#binary-version
+ */
+const VERSION = [0x01, 0x00, 0x00, 0x00];
 
-export type Options = unknown;
+/**
+ * Options for `parse`.
+ *
+ * Currently no option defined.
+ */
+export type ParseOptions = unknown;
 
+/**
+ * Parse WebAssembly binary format.
+ *
+ * Iterate based on each of the following items in the (section)[https://webassembly.github.io/spec/core/bikeshed/#sections%E2%91%A0].
+ *
+ * ## Result items overview.
+ * - custom .. https://webassembly.github.io/spec/core/bikeshed/#binary-customsec
+ * - type .. https://webassembly.github.io/spec/core/bikeshed/#binary-typesec
+ * - import .. https://webassembly.github.io/spec/core/bikeshed/#binary-importsec
+ * - func .. https://webassembly.github.io/spec/core/bikeshed/#binary-funcsec
+ * - table .. https://webassembly.github.io/spec/core/bikeshed/#binary-tablesec
+ * - mem .. https://webassembly.github.io/spec/core/bikeshed/#binary-memsec
+ * - global .. https://webassembly.github.io/spec/core/bikeshed/#binary-globalsec
+ * - export .. https://webassembly.github.io/spec/core/bikeshed/#binary-exportsec
+ * - start .. https://webassembly.github.io/spec/core/bikeshed/#binary-startsec
+ * - elem .. https://webassembly.github.io/spec/core/bikeshed/#binary-elemsec
+ * - code .. https://webassembly.github.io/spec/core/bikeshed/#binary-codesec
+ * - data .. https://webassembly.github.io/spec/core/bikeshed/#binary-datasec
+ * - datacount .. https://webassembly.github.io/spec/core/bikeshed/#binary-datacountsec
+ */
 export async function* parse(
   input: ArrayLike<number> | ReadableStream<Uint8Array>,
-  _opt?: Options,
+  _opt?: ParseOptions,
 ): AsyncGenerator<Item, void> {
   const src = newSource(input);
   try {

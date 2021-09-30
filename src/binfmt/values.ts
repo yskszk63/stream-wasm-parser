@@ -17,7 +17,7 @@ export async function readRawInteger(
   return Uint8Array.from(buf);
 }
 
-async function readInteger<R>(
+async function readInteger<R extends number>(
   source: Source,
   bits: number,
   min: number,
@@ -32,7 +32,7 @@ async function readInteger<R>(
   if (r < min || r > max) {
     throw new Error(`overflow. ${bits}, ${r}`);
   }
-  return r as unknown as R;
+  return r as R;
 }
 
 export async function readU32(source: Source): Promise<v.u32> {
@@ -110,7 +110,7 @@ export async function readRawFloat(
   return await source.readExact((bits / 8) | 0);
 }
 
-async function readFloat<R>(
+async function readFloat<R extends number>(
   source: Source,
   bits: number,
   decoder: (v: DataView) => number,
@@ -118,7 +118,7 @@ async function readFloat<R>(
   const buf = await readRawFloat(source, bits);
   const view = new DataView(buf.buffer);
   const r = decoder(view);
-  return r as unknown as R;
+  return r as R;
 }
 
 export async function readF32(source: Source): Promise<v.f32> {
