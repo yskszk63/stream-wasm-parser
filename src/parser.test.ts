@@ -340,4 +340,20 @@ describe("parsetest", () => {
     await expect(() => p.parse(Array.from({ length: 8 })).next()).rejects
       .toThrow();
   });
+
+  test("parse from response", async () => {
+    const response = Promise.resolve({
+      body: Uint8Array.from([0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]),
+    } as unknown as Response);
+    for await (const _ of p.parse(response)) {
+      throw new Error();
+    }
+  });
+
+  test("parse from response body null", async () => {
+    const response = Promise.resolve({
+      body: null,
+    } as unknown as Response);
+    await expect(p.parse(response).next()).rejects.toThrow("body === null");
+  });
 });

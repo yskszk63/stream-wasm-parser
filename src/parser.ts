@@ -44,10 +44,14 @@ export type ParseOptions = unknown;
  * - datacount .. https://webassembly.github.io/spec/core/bikeshed/#binary-datacountsec
  */
 export async function* parse(
-  input: ArrayLike<number> | ReadableStream<Uint8Array>,
+  input:
+    | ArrayLike<number>
+    | ReadableStream<Uint8Array>
+    | Response
+    | PromiseLike<Response>,
   _opt?: ParseOptions,
 ): AsyncGenerator<Item, void> {
-  const src = newSource(input);
+  const src = newSource(await getBodyIfResponse(input));
   try {
     await checkHeader(src);
 
@@ -63,6 +67,23 @@ export async function* parse(
   } finally {
     src.close();
   }
+}
+
+async function getBodyIfResponse(
+  input:
+    | ArrayLike<number>
+    | ReadableStream<Uint8Array>
+    | Response
+    | PromiseLike<Response>,
+): Promise<ArrayLike<number> | ReadableStream<Uint8Array>> {
+  if ("then" in input || "body" in input) {
+    const { body } = (await Promise.resolve(input));
+    if (body === null) {
+      throw new Error("body === null");
+    }
+    return body;
+  }
+  return input;
 }
 
 async function checkHeader(src: Source): Promise<void> {
