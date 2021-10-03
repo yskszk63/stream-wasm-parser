@@ -118,7 +118,7 @@ export type elemmode =
 export type code = func;
 
 /** 5.5.13 Code Section - func */
-export type func = [vec<locals>, expr]; // TODO Consider hold data or not.
+export type func = [vec<locals>, expr | null]; // TODO Consider hold data or not.
 
 /** 5.5.13 Code Section - locals */
 export type locals = t.valtype;

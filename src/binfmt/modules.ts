@@ -6,43 +6,29 @@ import * as t from "./types";
 import * as i from "./instr";
 import { tag } from "../tag";
 
-export class Context {
-  typeidx: number;
-  funcidx: number;
-  tableidx: number;
-  memidx: number;
-  globalidx: number;
-  elemidx: number;
-  dataidx: number;
-  localidx: number;
-  labelidx: number;
+type ContextIndexKey =
+  | "typeidx"
+  | "funcidx"
+  | "tableidx"
+  | "memidx"
+  | "globalidx"
+  | "elemidx"
+  | "dataidx"
+  | "localidx"
+  | "labelidx";
 
-  constructor() {
-    this.typeidx = 0;
-    this.funcidx = 0;
-    this.tableidx = 0;
-    this.memidx = 0;
-    this.globalidx = 0;
-    this.elemidx = 0;
-    this.dataidx = 0;
-    this.localidx = 0;
-    this.labelidx = 0;
+export class Context {
+  indexes: Partial<Record<ContextIndexKey, number>>;
+  captureInstructions: boolean;
+
+  constructor(captureInstructions: boolean) {
+    this.indexes = {};
+    this.captureInstructions = captureInstructions;
   }
 
-  next<R>(
-    p:
-      | "typeidx"
-      | "funcidx"
-      | "tableidx"
-      | "memidx"
-      | "globalidx"
-      | "elemidx"
-      | "dataidx"
-      | "localidx"
-      | "labelidx",
-  ): R {
-    const v = this[p];
-    this[p] += 1;
+  next<R>(p: ContextIndexKey): R {
+    const v = this.indexes[p] ?? 0;
+    this.indexes[p] = v + 1;
     return v as unknown as R;
   }
 
@@ -55,19 +41,7 @@ export class Context {
   indexed<R, V>(p: "dataidx", val: V): m.Indexed<m.dataidx, V>;
   indexed<R, V>(p: "localidx", val: V): m.Indexed<m.localidx, V>;
   indexed<R, V>(p: "labelidx", val: V): m.Indexed<m.labelidx, V>;
-  indexed<R, V>(
-    p:
-      | "typeidx"
-      | "funcidx"
-      | "tableidx"
-      | "memidx"
-      | "globalidx"
-      | "elemidx"
-      | "dataidx"
-      | "localidx"
-      | "labelidx",
-    val: V,
-  ): m.Indexed<R, V> {
+  indexed<R, V>(p: ContextIndexKey, val: V): m.Indexed<R, V> {
     const index = this.next<R>(p);
     return { index, val };
   }
@@ -96,7 +70,7 @@ export async function* iterItem(
         return;
 
       case 2:
-        for await (const item of iterVec(sub, (s) => parseImport(ctx, s))) {
+        for await (const item of iterVec(sub, parseImport.bind(null, ctx))) {
           yield tag("import", item);
         }
         return;
@@ -145,7 +119,7 @@ export async function* iterItem(
         return;
 
       case 10:
-        for await (const item of iterVec(sub, parseCode)) {
+        for await (const item of iterVec(sub, parseCode.bind(null, ctx))) {
           yield tag("code", item);
         }
         return;
@@ -379,24 +353,36 @@ async function parseElem(src: Source): Promise<m.elem> {
 }
 
 /** 5.5.13 Code Section */
-async function parseCode(src: Source): Promise<m.code> {
+async function parseCode(ctx: Context, src: Source): Promise<m.code> {
   const size = await v.readU32(src);
-  const func = await parseFunc(src.subsource(size), size);
+  const func = await parseFunc(ctx, src.subsource(size), size);
   return func;
 }
 
-async function parseFunc(src: Source, size: number): Promise<m.func> {
+async function parseFunc(
+  ctx: Context,
+  src: Source,
+  size: number,
+): Promise<m.func> {
   const pos = src.pos;
   const t = await readVec(src, parseLocals);
   const esize = size - (src.pos - pos);
   if (esize < 1) {
     throw new Error(`incorrect size. ${size} ${src.pos - pos}`);
   }
-  const e = await src.readExact(esize - 1);
-  if (await src.read() !== 0x0B) {
-    throw new Error("expected end. but not.");
+  if (ctx.captureInstructions) {
+    const e = await src.readExact(esize);
+    if (e.at(-1) !== 0x0B) {
+      throw new Error("expected end. but not.");
+    }
+    return [t.flatMap((i) => i), e];
+  } else {
+    await src.skip(esize - 1);
+    if (await src.read() !== 0x0B) {
+      throw new Error("expected end. but not.");
+    }
+    return [t.flatMap((i) => i), null];
   }
-  return [t.flatMap((i) => i), [e, "end"]];
 }
 
 async function parseLocals(src: Source): Promise<vec<m.locals>> {

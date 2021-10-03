@@ -18,10 +18,13 @@ const VERSION = [0x01, 0x00, 0x00, 0x00];
 
 /**
  * Options for `parse`.
- *
- * Currently no option defined.
  */
-export type ParseOptions = unknown;
+export type ParseOptions = {
+  /**
+   * Capture function code instructions as Uint8Array
+   */
+  captureInstructions?: true;
+};
 
 /**
  * Parse WebAssembly binary format.
@@ -49,13 +52,13 @@ export async function* parse(
     | ReadableStream<Uint8Array>
     | Response
     | PromiseLike<Response>,
-  _opt?: ParseOptions,
+  opt?: ParseOptions,
 ): AsyncGenerator<Item, void> {
   const src = newSource(await getBodyIfResponse(input));
   try {
     await checkHeader(src);
 
-    const ctx = new Context();
+    const ctx = new Context(opt?.captureInstructions ?? false);
     while (true) {
       for await (const item of iterItem(ctx, src)) {
         if (item === "EOF") {

@@ -7,6 +7,7 @@ export interface Source {
   read(): Promise<number>;
   read(eof: true): Promise<number | null>;
   readExact(n: number): Promise<Uint8Array>;
+  skip(n: number): Promise<void>;
   subsource(limit: number): Source;
 }
 
@@ -90,6 +91,20 @@ class StreamSource {
     return r;
   }
 
+  async skip(n: number): Promise<void> {
+    if (n < 0) {
+      throw new Error("illegal argument.");
+    }
+    let rest = n;
+    while (rest > 0) {
+      const maybebuf = await this.fill(rest);
+      if (maybebuf === "EOF") {
+        throw new Error("unexpected EOF.");
+      }
+      rest -= maybebuf.length;
+    }
+  }
+
   subsource(limit: number): Source {
     return new SubSource(this, limit);
   }
@@ -150,6 +165,24 @@ class ArraySource {
     }
   }
 
+  skip(n: number): Promise<void> {
+    try {
+      if (n === 0) {
+        return Promise.resolve();
+      }
+      if (n < 1) {
+        throw new Error("illegal argument.");
+      }
+      if (this.items.length - this._pos < n) {
+        throw new Error("unexpected EOF.");
+      }
+      this._pos += n;
+      return Promise.resolve();
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
   subsource(limit: number): Source {
     return new SubSource(this, limit);
   }
@@ -178,9 +211,7 @@ class SubSource {
   read(): Promise<number>;
   read(eof: true): Promise<number | null>;
   async read(eof?: true): Promise<number | null> {
-    if (this.rest < 1) {
-      throw new Error("limit reached.");
-    }
+    this.checkLimit(1);
     let r;
     if (eof === true) {
       r = await this.delegate.read(true);
@@ -194,15 +225,25 @@ class SubSource {
   }
 
   async readExact(n: number): Promise<Uint8Array> {
-    if (this.rest < n) {
-      throw new Error("limit reached.");
-    }
+    this.checkLimit(n);
     const r = await this.delegate.readExact(n);
     this.rest -= r.length;
     return r;
   }
 
+  async skip(n: number): Promise<void> {
+    this.checkLimit(n);
+    await this.delegate.skip(n);
+    this.rest -= n;
+  }
+
   subsource(limit: number): Source {
     return new SubSource(this, limit);
+  }
+
+  checkLimit(needs: number) {
+    if (this.rest < needs) {
+      throw new Error("limit reached.");
+    }
   }
 }

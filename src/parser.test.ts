@@ -117,19 +117,23 @@ describe("parsetest", () => {
 
   test("testdata/04_function.wat", async () => {
     const src = await wasmfile();
-    const sections = p.parse(src, {});
+    const sections = p.parse(src, { captureInstructions: true });
 
     let typeseen = 0;
     for await (const sec of sections) {
       if (sec.tag === "func") {
         expect(sec.val.val).toBe(0);
       } else if (sec.tag === "code") {
-        const [locals, [expr, _]] = sec.val;
+        const [locals, expr] = sec.val;
         expect(locals.length).toBe(1);
         expect(locals[0]).toBe("i32");
-        expect(expr.length).toBe(2);
+        if (expr === null) {
+          throw new Error("unexpected");
+        }
+        expect(expr.length).toBe(3);
         expect(expr[0]).toBe(0x41); // i32.const
         expect(expr[1]).toBe(8); // n
+        expect(expr[2]).toBe(0x0B); // END
       } else if (sec.tag === "type") {
         typeseen += 1;
       } else {
@@ -137,6 +141,14 @@ describe("parsetest", () => {
       }
     }
     expect(typeseen).toBe(1);
+
+    // no capture instructions.
+    for await (const sec of p.parse(await wasmfile())) {
+      if (sec.tag === "code") {
+        const [_, expr] = sec.val;
+        expect(expr).toBeNull();
+      }
+    }
   });
 
   test("testdata/05_table.wat", async () => {
@@ -175,12 +187,13 @@ describe("parsetest", () => {
 
     for await (const sec of sections) {
       if (sec.tag === "global") {
-        const { type: [mut, valtype], init: [expr, _] } = sec.val.val;
+        const { type: [mut, valtype], init: expr } = sec.val.val;
         expect(mut).toBe("var");
         expect(valtype).toBe("i32");
-        expect(expr.length).toBe(2);
+        expect(expr.length).toBe(3);
         expect(expr[0]).toBe(0x41); // i32.const
         expect(expr[1]).toBe(1);
+        expect(expr[2]).toBe(0x0B); // END
       } else {
         throw new Error(`unexpected section. ${sec.tag}`);
       }
@@ -264,9 +277,10 @@ describe("parsetest", () => {
         const mode = sec.val.val.mode;
         if (mode.tag === "active") {
           expect(mode.val.table).toBe(0);
-          expect(mode.val.offset[0].length).toBe(2);
-          expect(mode.val.offset[0][0]).toBe(0x41); // i32.const
-          expect(mode.val.offset[0][1]).toBe(0); // i32.const
+          expect(mode.val.offset.length).toBe(3);
+          expect(mode.val.offset[0]).toBe(0x41); // i32.const
+          expect(mode.val.offset[1]).toBe(0);
+          expect(mode.val.offset[2]).toBe(0x0B); // END
         } else {
           throw new Error(`unexpected tag ${mode.tag}`);
         }
@@ -295,8 +309,10 @@ describe("parsetest", () => {
         expect(sec.val.val.init[1]).toBe("i".charCodeAt(0));
         const mode = sec.val.val.mode;
         if (mode.tag === "active") {
-          expect(mode.val.offset[0][0]).toBe(0x41);
-          expect(mode.val.offset[0][1]).toBe(0);
+          expect(mode.val.offset.length).toBe(3);
+          expect(mode.val.offset[0]).toBe(0x41);
+          expect(mode.val.offset[1]).toBe(0);
+          expect(mode.val.offset[2]).toBe(0x0B); // END
         } else {
           throw new Error(`unexpected tag ${mode.tag}`);
         }

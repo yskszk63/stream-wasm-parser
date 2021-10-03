@@ -7,54 +7,48 @@ export async function parseExprConst(src: Source): Promise<expr> {
   const e = [];
   while (true) {
     const i = await src.read();
+    e.push(i);
     switch (i) {
       case 0x0B:
-        return [Uint8Array.from(e), "end"];
+        return Uint8Array.from(e);
       case 0x41: {
         // i32.const n
-        e.push(i);
         const b = await v.readRawInteger(src, 32);
         e.push(...Array.from(b));
         break;
       }
       case 0x42: {
         // i64.const n
-        e.push(i);
         const b = await v.readRawInteger(src, 64);
         e.push(...Array.from(b));
         break;
       }
       case 0x43: {
         // f32.const n
-        e.push(i);
         const b = await v.readRawFloat(src, 32);
         e.push(...Array.from(b));
         break;
       }
       case 0x44: {
         // f64.const n
-        e.push(i);
         const b = await v.readRawFloat(src, 64);
         e.push(...Array.from(b));
         break;
       }
       case 0xD0: {
         // ref.null
-        e.push(i);
         const b = await src.read(); // reftype
         e.push(b);
         break;
       }
       case 0xD2: {
         // ref.func
-        e.push(i);
         const b = await v.readRawInteger(src, 32); // funcidx
         e.push(...Array.from(b));
         break;
       }
       case 0x23: {
         // global.get
-        e.push(i);
         const b = await v.readRawInteger(src, 32); // globalidx
         e.push(...Array.from(b));
         break;
