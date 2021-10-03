@@ -6,7 +6,7 @@ WIP
 
 ## Example
 
-(browser example)[./example/browser/index.js]
+[browser example](example/browser/)
 
 ```javascript
 import { parse } from "./stream-wasm-parser.js";
