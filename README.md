@@ -4,16 +4,27 @@ Streaming WASM binary parser.
 
 WIP
 
-## Build
+## Example
 
-```
-npm build
+(browser example)[./example/browser/index.js]
+
+```javascript
+import { parse } from "./stream-wasm-parser.js";
+
+const $pre = document.querySelector('pre');
+for await (const sec of parse(fetch('./example.wasm'))) {
+    $pre.append(JSON.stringify(sec), "\n");
+}
 ```
 
-## Test
+output
 
-```
-npm test
+```text
+{"tag":"type","val":{"index":0,"val":{"tag":"func","val":{"parameters":["i32","i32"],"results":[]}}}}
+{"tag":"type","val":{"index":1,"val":{"tag":"func","val":{"parameters":["i32","i32","i32"],"results":["i32"]}}}}
+{"tag":"type","val":{"index":2,"val":{"tag":"func","val":{"parameters":["i32","i32"],"results":["i32"]}}}}
+{"tag":"type","val":{"index":3,"val":{"tag":"func","val":{"parameters":["i32","i32","i32"],"results":[]}}}}
+...
 ```
 
 ## API
@@ -170,6 +181,18 @@ declare type Item =
     };
   }
   | { tag: "datacount"; val: u32 };
+```
+
+## Build
+
+```
+npm build
+```
+
+## Test
+
+```
+npm test
 ```
 
 # Author
