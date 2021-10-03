@@ -19,11 +19,43 @@ npm test
 ## API
 
 ```typescript
-declare type Options = unknown;
-declare function parse(input: ArrayLike<number> | ReadableStream<Uint8Array>, _opt?: Options): AsyncGenerator<Item, void>;
+/**
+ * Options for `parse`.
+ */
+declare type ParseOptions = {
+    /**
+     * Capture function code instructions as Uint8Array
+     */
+    captureInstructions?: true;
+    /**
+     * Name of the custom section to capture.
+     */
+    captureCustom?: string[];
+};
+/**
+ * Parse WebAssembly binary format.
+ *
+ * Iterate based on each of the following items in the (section)[https://webassembly.github.io/spec/core/bikeshed/#sections%E2%91%A0].
+ *
+ * ## Result items overview.
+ * - custom .. https://webassembly.github.io/spec/core/bikeshed/#binary-customsec
+ * - type .. https://webassembly.github.io/spec/core/bikeshed/#binary-typesec
+ * - import .. https://webassembly.github.io/spec/core/bikeshed/#binary-importsec
+ * - func .. https://webassembly.github.io/spec/core/bikeshed/#binary-funcsec
+ * - table .. https://webassembly.github.io/spec/core/bikeshed/#binary-tablesec
+ * - mem .. https://webassembly.github.io/spec/core/bikeshed/#binary-memsec
+ * - global .. https://webassembly.github.io/spec/core/bikeshed/#binary-globalsec
+ * - export .. https://webassembly.github.io/spec/core/bikeshed/#binary-exportsec
+ * - start .. https://webassembly.github.io/spec/core/bikeshed/#binary-startsec
+ * - elem .. https://webassembly.github.io/spec/core/bikeshed/#binary-elemsec
+ * - code .. https://webassembly.github.io/spec/core/bikeshed/#binary-codesec
+ * - data .. https://webassembly.github.io/spec/core/bikeshed/#binary-datasec
+ * - datacount .. https://webassembly.github.io/spec/core/bikeshed/#binary-datacountsec
+ */
+declare function parse(input: ArrayLike<number> | ReadableStream<Uint8Array> | Response | PromiseLike<Response>, opt?: ParseOptions): AsyncGenerator<Item, void>;
 
 declare type Item =
-  | { tag: "custom"; val: [string, Uint8Array] }
+  | { tag: "custom"; val: [string, Uint8Array | null] }
   | {
     tag: "type";
     val: {
@@ -85,7 +117,7 @@ declare type Item =
           "const" | "var",
           "i32" | "i64" | "f32" | "f64" | "funcref" | "externref",
         ];
-        init: [Uint8Array, "end"];
+        init: Uint8Array;
       };
     };
   }
@@ -106,13 +138,13 @@ declare type Item =
       index: elemidx;
       val: {
         type: "funcref" | "externref";
-        init: { tag: "expr"; val: ([Uint8Array, "end"])[] } | {
+        init: { tag: "expr"; val: (Uint8Array)[] } | {
           tag: "funcref";
           val: (funcidx)[];
         };
         mode: { tag: "passive"; val: undefined } | {
           tag: "active";
-          val: { table: tableidx; offset: [Uint8Array, "end"] };
+          val: { table: tableidx; offset: Uint8Array };
         } | { tag: "deactive"; val: undefined };
       };
     };
@@ -121,7 +153,7 @@ declare type Item =
     tag: "code";
     val: [
       ("i32" | "i64" | "f32" | "f64" | "funcref" | "externref")[],
-      [Uint8Array, "end"],
+      Uint8Array | null,
     ];
   }
   | {
@@ -132,7 +164,7 @@ declare type Item =
         init: Uint8Array;
         mode: { tag: "passive"; val: undefined } | {
           tag: "active";
-          val: { memory: memidx; offset: [Uint8Array, "end"] };
+          val: { memory: memidx; offset: Uint8Array };
         };
       };
     };
