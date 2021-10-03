@@ -24,6 +24,11 @@ export type ParseOptions = {
    * Capture function code instructions as Uint8Array
    */
   captureInstructions?: true;
+
+  /**
+   * Name of the custom section to capture.
+   */
+  captureCustom?: string[];
 };
 
 /**
@@ -58,7 +63,10 @@ export async function* parse(
   try {
     await checkHeader(src);
 
-    const ctx = new Context(opt?.captureInstructions ?? false);
+    const ctx = new Context(
+      opt?.captureInstructions ?? false,
+      opt?.captureCustom ?? [],
+    );
     while (true) {
       for await (const item of iterItem(ctx, src)) {
         if (item === "EOF") {

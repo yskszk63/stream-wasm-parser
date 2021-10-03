@@ -46,12 +46,12 @@ export type Item =
   | Tagged<"export", export_>
   | Tagged<"start", start>
   | Tagged<"elem", Indexed<elemidx, elem>>
-  | Tagged<"code", code> // TODO index
+  | Tagged<"code", code>
   | Tagged<"data", Indexed<dataidx, data>>
   | Tagged<"datacount", v.u32>;
 
 /** 5.5.3 Custom Section */
-export type customsec = [name, Uint8Array]; // TODO Consider hold data or not.
+export type customsec = [name, Uint8Array | null];
 
 /** 5.5.5 Import Section - import */
 export type import_ = {
@@ -118,7 +118,7 @@ export type elemmode =
 export type code = func;
 
 /** 5.5.13 Code Section - func */
-export type func = [vec<locals>, expr | null]; // TODO Consider hold data or not.
+export type func = [vec<locals>, expr | null];
 
 /** 5.5.13 Code Section - locals */
 export type locals = t.valtype;

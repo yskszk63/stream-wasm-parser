@@ -20,10 +20,15 @@ type ContextIndexKey =
 export class Context {
   indexes: Partial<Record<ContextIndexKey, number>>;
   captureInstructions: boolean;
+  captureCustomsec: Set<string>;
 
-  constructor(captureInstructions: boolean) {
+  constructor(
+    captureInstructions: boolean,
+    captureCustomsec: Iterable<string>,
+  ) {
     this.indexes = {};
     this.captureInstructions = captureInstructions;
+    this.captureCustomsec = new Set(captureCustomsec);
   }
 
   next<R>(p: ContextIndexKey): R {
@@ -60,7 +65,7 @@ export async function* iterItem(
 
     switch (b) {
       case 0:
-        yield tag("custom", await parseCustomsec(sub, size));
+        yield tag("custom", await parseCustomsec(ctx, sub, size));
         return;
 
       case 1:
@@ -142,13 +147,19 @@ export async function* iterItem(
 
 /** 5.5.3 Custom Section */
 async function parseCustomsec(
+  ctx: Context,
   src: Source,
   size: number,
 ): Promise<m.customsec> {
   const p = src.pos;
   const name = await v.readName(src);
-  const data = await src.readExact(size - (src.pos - p));
-  return [name, data];
+  if (ctx.captureCustomsec.has(name)) {
+    const data = await src.readExact(size - (src.pos - p));
+    return [name, data];
+  } else {
+    await src.skip(size - (src.pos - p));
+    return [name, null];
+  }
 }
 
 /** 5.5.5 Import Section */

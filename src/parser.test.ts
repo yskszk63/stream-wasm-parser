@@ -340,6 +340,9 @@ describe("parsetest", () => {
     for await (const sec of sections) {
       expect(sec.tag).toBe("custom");
     }
+
+    for await (const _ of p.parse(src, { captureCustom: ["name"] })) {
+    }
   });
 
   test("testdata/14_datacount.wasm", async () => {
