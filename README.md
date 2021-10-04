@@ -2,8 +2,6 @@
 
 Streaming WASM binary parser.
 
-WIP
-
 ## Example
 
 [browser example](example/browser/)
