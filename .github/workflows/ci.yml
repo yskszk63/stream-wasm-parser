@@ -13,8 +13,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
-        apt update
-        apt install -y --no-install-recommends wabt
+        sudo apt update
+        sudo -EDEBIAN_FRONTEND apt install -y --no-install-recommends wabt
       env:
         DEBIAN_FRONTEND: noninteractive
     - uses: actions/setup-node@v2
