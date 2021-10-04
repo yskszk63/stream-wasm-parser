@@ -1,0 +1,28 @@
+name: Ci
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: |
+        apt update
+        apt install -y --no-install-recommends wabt
+      env:
+        DEBIAN_FRONTEND: noninteractive
+    - uses: actions/setup-node@v2
+      with:
+        node-version: 16.x
+    - run: |
+        npm install
+        npm run build
+        npm run test -- --coverage
+    - uses: codecov/codecov-action@v2
+      with:
+        files: coverage/lcov.info
