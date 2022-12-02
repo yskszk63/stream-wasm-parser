@@ -11,20 +11,21 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: |
         sudo apt update
         sudo --preserve-env=DEBIAN_FRONTEND apt install -y --no-install-recommends wabt
       env:
         DEBIAN_FRONTEND: noninteractive
-    - uses: actions/setup-node@v2
+    - uses: actions/setup-node@v3
       with:
         node-version: 16.x
+        cache: 'npm'
     - run: |
         npm install
         npm run build
         npm run test -- --coverage
-    - uses: codecov/codecov-action@v2
+    - uses: codecov/codecov-action@v3
       with:
         files: coverage/lcov.info
 
@@ -34,8 +35,8 @@ jobs:
     needs:
     - tests
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
       with:
         node-version: 16.x
         registry-url: 'https://registry.npmjs.org'
