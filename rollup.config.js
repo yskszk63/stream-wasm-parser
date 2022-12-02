@@ -1,8 +1,8 @@
 import fs from 'fs'
-import swc from 'rollup-plugin-swc'
+import * as swc from 'rollup-plugin-swc'
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import dts from 'rollup-plugin-dts'
-import {terser} from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 
 const swcConf = JSON.parse(fs.readFileSync(new URL(".swcrc", import.meta.url), {encoding: 'utf8'}));
 
@@ -16,7 +16,7 @@ export default [{
     nodeResolve({
       extensions: ['.ts'],
     }),
-    swc(swcConf),
+    swc.default.default(swcConf),
     terser(),
   ],
 }, {
