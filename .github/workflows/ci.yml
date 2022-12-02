@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - main
+    - fix-ci # TODO remove
   pull_request:
   release:
     types: [created]
