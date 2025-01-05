@@ -1,6 +1,6 @@
 {
   "name": "stream-wasm-parser",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Streaming WASM binary parser.",
   "type": "module",
   "types": "./dist/index.d.ts",
