@@ -11,15 +11,15 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: |
         sudo apt update
         sudo --preserve-env=DEBIAN_FRONTEND apt install -y --no-install-recommends wabt
       env:
         DEBIAN_FRONTEND: noninteractive
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
-        node-version: 16.x
+        node-version: 22.x
         cache: 'npm'
     - run: |
         npm install
@@ -35,10 +35,10 @@ jobs:
     needs:
     - tests
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
-        node-version: 16.x
+        node-version: 22.x
         registry-url: 'https://registry.npmjs.org'
     - run: |
         npm install
